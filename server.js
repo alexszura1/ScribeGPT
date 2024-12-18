@@ -1,10 +1,14 @@
 const express = require('express');
 const axios = require('axios');
-require('dotenv').config({ path: './api.env' });
 const path = require('path');
 
+// Only load .env file if running locally
+if (process.env.NODE_ENV !== 'production') {
+    require('dotenv').config({ path: './api.env' });
+}
+
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 // Serve static files from the 'public' directory
 app.use(express.static(path.join(__dirname, 'public')));
@@ -19,24 +23,29 @@ app.post('/generate', async (req, res) => {
     }
 
     try {
-        // Updated request to OpenAI API with chat/completions endpoint and customized instructions
-        const response = await axios.post('https://api.openai.com/v1/chat/completions', {
-            model: 'gpt-3.5-turbo', // Use gpt-3.5-turbo or gpt-4
-            messages: [
-                { 
-                    role: 'system', 
-                    content: 'You are a medical scribe who creates detailed and accurate office notes based on transcriptions. You should follow a structured format including HPI, Physical exam, X-ray (if applicable), Diagnosis, and Plan. Keep the note concise but comprehensive. Always ensure medical terminology is used correctly. The format should be HPI:,  Physical Exam (Body part), Diagnostics (xray/MRI), Plan ' 
+        // Request to OpenAI API
+        const response = await axios.post(
+            'https://api.openai.com/v1/chat/completions',
+            {
+                model: 'gpt-3.5-turbo', // Use gpt-3.5-turbo or gpt-4
+                messages: [
+                    {
+                        role: 'system',
+                        content:
+                            'You are a medical scribe who creates detailed and accurate office notes based on transcriptions. You should follow a structured format including HPI, Physical exam, X-ray (if applicable), Diagnosis, and Plan. Keep the note concise but comprehensive. Always ensure medical terminology is used correctly. The format should be HPI:, Physical Exam (Body part), Diagnostics (xray/MRI), Plan.',
+                    },
+                    { role: 'user', content: transcription },
+                ],
+                max_tokens: 300,
+                temperature: 0.7,
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+                    'Content-Type': 'application/json',
                 },
-                { role: 'user', content: transcription }
-            ],
-            max_tokens: 300,
-            temperature: 0.7
-        }, {
-            headers: {
-                'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
-                'Content-Type': 'application/json'
             }
-        });
+        );
 
         // Extract the generated text from the response
         const generatedText = response.data.choices[0].message.content.trim();
