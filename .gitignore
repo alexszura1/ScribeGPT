@@ -1,0 +1,2 @@
+# Ignore API keys and environment files
+api.env
