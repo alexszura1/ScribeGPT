@@ -4,7 +4,7 @@ const path = require('path');
 
 // Only load .env file if running locally
 if (process.env.NODE_ENV !== 'production') {
-    require('dotenv').config({ path: './api.env' });
+    require('dotenv').config({ path: './api.env' }); // Make sure api.env is properly placed
 }
 
 const app = express();
@@ -23,11 +23,11 @@ app.post('/generate', async (req, res) => {
     }
 
     try {
-        // Request to OpenAI API
+        // Use OpenAI API with the API key (local or from Vercel environment variables)
         const response = await axios.post(
             'https://api.openai.com/v1/chat/completions',
             {
-                model: 'gpt-3.5-turbo', // Use gpt-3.5-turbo or gpt-4
+                model: 'gpt-3.5-turbo', // You can also use gpt-4
                 messages: [
                     {
                         role: 'system',
