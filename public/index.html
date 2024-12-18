@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ScribeGPT</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+        .container h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: #fff;
+        }
+        .disclaimer {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+            background-color: rgba(0, 0, 0, 0.3);
+            padding: 1rem;
+            border-radius: 8px;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        .form-group textarea {
+            width: 95%;
+            max-width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: 20px;
+            font-size: 1rem;
+            resize: none;
+            height: 150px;
+            box-shadow: inset 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: block;
+            margin: 0 auto;
+        }
+        .form-group button {
+            display: block;
+            width: 100%;
+            padding: 1rem;
+            background: #ff7b54;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s ease-in-out;
+        }
+        .form-group button:hover {
+            background: #ff5722;
+        }
+        footer {
+            margin-top: 2rem;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>ScribeGPT</h1>
+        <div class="disclaimer">
+            <strong>Disclaimer:</strong> This is an experimental project. Please do not enter any real patient information. This tool is not intended for actual medical use.
+        </div>
+        <div class="form-group">
+            <label for="transcription">Input Text</label>
+            <textarea id="transcription" placeholder="Enter the transcription here..."></textarea>
+        </div>
+        <div class="form-group">
+            <button id="generateButton">Generate</button>
+        </div>
+        <footer>
+            Powered by ChatGPT
+        </footer>
+    </div>
+
+    <script>
+        document.getElementById('generateButton').addEventListener('click', async function () {
+            const transcription = document.getElementById('transcription').value;
+            if (transcription.trim() === "") {
+                alert("Please enter some text before generating.");
+                return;
+            }
+    
+            // Display loading state
+            const generateButton = document.getElementById('generateButton');
+            generateButton.textContent = "Generating...";
+            generateButton.disabled = true;
+    
+            try {
+                // API call to the server
+                const response = await fetch('/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ transcription }) // Send transcription as JSON
+                });
+    
+                const data = await response.json();
+    
+                if (response.ok) {
+                    // Display the generated result
+                    const result = data.generatedText.trim();
+                    alert("Generated Office Note:\n" + result);
+                } else {
+                    console.error("Error from API:", data);
+                    alert("Failed to generate notes. Please try again.");
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                alert("An error occurred. Please check the console for details.");
+            } finally {
+                // Reset button state
+                generateButton.textContent = "Generate";
+                generateButton.disabled = false;
+            }
+        });
+    </script>
+    
+</body>
+</html>
