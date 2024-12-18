@@ -16,6 +16,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json()); // Middleware to parse JSON
 
 app.post('/generate', async (req, res) => {
+    console.log('Server is starting...');
+    console.log('OPENAI_API_KEY:', process.env.OPENAI_API_KEY); // Log the value immediately when the server starts
+
     const { transcription } = req.body;
 
     if (!transcription) {
