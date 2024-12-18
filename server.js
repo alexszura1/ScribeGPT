@@ -22,12 +22,15 @@ app.post('/generate', async (req, res) => {
         return res.status(400).json({ error: "No transcription provided" });
     }
 
+    // Log the API key for debugging (remove after debugging)
+    console.log('OPENAI_API_KEY:', process.env.OPENAI_API_KEY); // Add this line
+
     try {
-        // Use OpenAI API with the API key (local or from Vercel environment variables)
+        // Request to OpenAI API
         const response = await axios.post(
             'https://api.openai.com/v1/chat/completions',
             {
-                model: 'gpt-3.5-turbo', // You can also use gpt-4
+                model: 'gpt-3.5-turbo', // Use gpt-3.5-turbo or gpt-4
                 messages: [
                     {
                         role: 'system',
@@ -55,6 +58,7 @@ app.post('/generate', async (req, res) => {
         res.status(500).json({ error: "Failed to generate notes" });
     }
 });
+
 
 // Catch-all route for other requests (return index.html for any other path)
 app.get('*', (req, res) => {
